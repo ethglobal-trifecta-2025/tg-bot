@@ -1,0 +1,33 @@
+{
+  "name": "trump-tg-bot",
+  "module": "index.ts",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "build": "bun build index.ts --outdir=dist --minify --target=browser",
+    "start": "bun run build && bun run start:prod",
+    "start:prod": "bun run start:prod --env=production",
+    "start:dev": "bun run index.ts --env=development",
+    "codegen": "graphql-codegen"
+  },
+  "devDependencies": {
+    "@types/bun": "latest"
+  },
+  "peerDependencies": {
+    "typescript": "^5"
+  },
+  "dependencies": {
+    "@apollo/client": "^3.13.5",
+    "@apollo/server": "^4.11.3",
+    "@graphql-codegen/cli": "^5.0.5",
+    "@graphql-codegen/introspection": "4.0.3",
+    "@privy-io/server-auth": "^1.19.0",
+    "@supabase/supabase-js": "^2.49.1",
+    "dotenv": "^16.4.7",
+    "grammy": "^1.35.0",
+    "graphql": "^16.10.0",
+    "react": "^18.2.0",
+    "supabase": "^2.19.7",
+    "viem": "^2.23.14"
+  }
+}
