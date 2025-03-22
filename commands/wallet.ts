@@ -1,7 +1,7 @@
-import type { CommandContext, Context } from "grammy";
+import type { Context } from "grammy";
 import { getWallet } from "../utils/getWallet";
 
-export const wallet = async (ctx: CommandContext<Context>) => {
+export const wallet = async (ctx: Context) => {
   if (!ctx.from) {
     return ctx.reply("User not found.");
   }

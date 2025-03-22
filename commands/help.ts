@@ -8,13 +8,12 @@ export const help = async (ctx: CommandContext<Context>) => {
   }
 
   try {
-    // Create inline keyboard for quick command access
     const keyboard = new InlineKeyboard()
-      .text("💰 Wallet", "/wallet")
-      .text("🏊 Pools", "/pools")
+      .text("💰 Wallet", "wallet_cmd")
+      .text("🏊 Pools", "pools_cmd")
       .row()
-      .text("🎲 Bets", "/bets")
-      .text("💸 Withdraw", "/withdraw");
+      .text("🎲 Bets", "bets_cmd")
+      .text("💸 Withdraw", "withdraw_cmd");
 
     const message = `🌟 *Welcome, ${ctx.from.first_name}!* 🌟
 

@@ -1,9 +1,9 @@
-import type { CommandContext, Context } from "grammy";
+import type { Context } from "grammy";
 import { InlineKeyboard } from "grammy";
+import { PoolStatus, type Bet } from "../lib/__generated__/graphql";
 import { apolloClient } from "../lib/apolloClient";
 import { GET_BETS } from "../queries";
 import { getWallet } from "../utils/getWallet";
-import { PoolStatus, type Bet } from "../lib/__generated__/graphql";
 
 enum FilterType {
   ACTIVE = "active",
@@ -115,9 +115,7 @@ async function fetchBets(
 }
 
 // Main command handler
-export const betsCommand = async (
-  ctx: CommandContext<Context>
-): Promise<void> => {
+export const betsCommand = async (ctx: Context): Promise<void> => {
   if (!ctx.from) {
     await ctx.reply("User not found.");
     return;

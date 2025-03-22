@@ -1,8 +1,8 @@
-import type { CommandContext, Context } from "grammy";
+import type { Context } from "grammy";
 import { InlineKeyboard } from "grammy";
-import { GET_POOLS } from "../queries";
-import { apolloClient } from "../lib/apolloClient";
 import { PoolStatus, type Pool } from "../lib/__generated__/graphql";
+import { apolloClient } from "../lib/apolloClient";
+import { GET_POOLS } from "../queries";
 
 enum PoolFilterType {
   ACTIVE = "active",
@@ -213,9 +213,7 @@ async function fetchPools(
   }
 }
 
-export const poolsCommand = async (
-  ctx: CommandContext<Context>
-): Promise<void> => {
+export const poolsCommand = async (ctx: Context): Promise<void> => {
   try {
     const pagination: PaginationState = {
       offset: 0,

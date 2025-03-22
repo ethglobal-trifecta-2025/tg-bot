@@ -3,7 +3,7 @@ import { Bot } from "grammy";
 import { config } from "dotenv";
 import { wallet } from "./commands/wallet";
 import { help } from "./commands/help";
-import { poolsCommand } from "./commands/pools";
+import { handlePoolsNavigation, poolsCommand } from "./commands/pools";
 import { poolCommand } from "./commands/pool";
 import { betsCommand } from "./commands/bets";
 
@@ -43,6 +43,30 @@ bot.command("bet", (ctx) => {
 
 bot.command("withdraw", (ctx) => {
   ctx.reply("Withdraw command is not implemented yet.");
+});
+
+bot.callbackQuery("wallet_cmd", async (ctx) => {
+  await ctx.answerCallbackQuery(); // This stops the loading animation
+  await wallet(ctx); // Call your wallet function
+});
+
+bot.callbackQuery("pools_cmd", async (ctx) => {
+  await ctx.answerCallbackQuery();
+  await poolsCommand(ctx);
+});
+
+bot.callbackQuery("bets_cmd", async (ctx) => {
+  await ctx.answerCallbackQuery();
+  await betsCommand(ctx);
+});
+
+bot.callbackQuery("withdraw_cmd", async (ctx) => {
+  await ctx.answerCallbackQuery();
+  await ctx.reply("Withdraw command is not implemented yet.");
+});
+
+bot.callbackQuery(/^pools?_/, async (ctx) => {
+  await handlePoolsNavigation(ctx);
 });
 
 bot.on("message", (ctx) => ctx.reply("Got another message!"));
