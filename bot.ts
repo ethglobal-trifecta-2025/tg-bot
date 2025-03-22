@@ -6,6 +6,7 @@ import { help } from "./commands/help";
 import { handlePoolsNavigation, poolsCommand } from "./commands/pools";
 import { poolCommand } from "./commands/pool";
 import { betsCommand } from "./commands/bets";
+import { placeBetCommand } from "./commands/bet";
 
 config();
 
@@ -38,7 +39,7 @@ bot.command("bets", (ctx) => {
 });
 
 bot.command("bet", (ctx) => {
-  ctx.reply("Bet command is not implemented yet.");
+  placeBetCommand(ctx);
 });
 
 bot.command("withdraw", (ctx) => {

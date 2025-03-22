@@ -4,44 +4,16 @@ import { GET_POOL } from "../queries";
 import {
   OrderDirection,
   Pool_OrderBy,
-  PoolStatus,
+  type Pool,
 } from "../lib/__generated__/graphql";
-
-// Define the Pool type based on the provided schema
-type Pool = {
-  __typename?: "Pool";
-  bets: Array<any>; // Changed from Bet to any for simplification
-  betsCloseAt: string; // BigInt output as string
-  chainId: string; // BigInt output as string
-  chainName: string;
-  closureCriteria: string;
-  closureInstructions: string;
-  createdAt: string; // BigInt output as string
-  createdBlockNumber: string; // BigInt output as string
-  createdBlockTimestamp: string; // BigInt output as string
-  createdTransactionHash: string; // Bytes output as string
-  gradedBlockNumber: string; // BigInt output as string
-  gradedBlockTimestamp: string; // BigInt output as string
-  gradedTransactionHash: string; // Bytes output as string
-  id: string;
-  isDraw: boolean;
-  lastUpdatedBlockNumber: string; // BigInt output as string
-  lastUpdatedBlockTimestamp: string; // BigInt output as string
-  lastUpdatedTransactionHash: string; // Bytes output as string
-  options: Array<string>;
-  originalTruthSocialPostId: string;
-  pointsBetTotals: Array<string>; // BigInt output as string array
-  pointsVolume: string; // BigInt output as string
-  poolId: string; // BigInt output as string
-  question: string;
-  status: PoolStatus;
-  usdcBetTotals: Array<string>; // BigInt output as string array
-  usdcVolume: string; // BigInt output as string
-  winningOption: string; // BigInt output as string
-};
+import {
+  formatDate,
+  formatPoints,
+  formatStatus,
+  formatUSD,
+} from "../utils/format";
 
 export const poolCommand = async (ctx: CommandContext<Context>) => {
-  // Extract pool ID from command like /pool 2
   if (!ctx.message) {
     return ctx.reply("Message not found.");
   }
@@ -52,13 +24,12 @@ export const poolCommand = async (ctx: CommandContext<Context>) => {
   }
 
   try {
-    // Fetch pool data from Apollo client
     const poolResult = await apolloClient.query({
       query: GET_POOL,
       variables: {
         poolId: inputPoolId,
         orderBy: Pool_OrderBy.CreatedAt,
-        orderDirection: OrderDirection.Desc, // Fixed variable name
+        orderDirection: OrderDirection.Desc,
       },
     });
 
@@ -72,11 +43,7 @@ export const poolCommand = async (ctx: CommandContext<Context>) => {
     }
 
     const poolData = poolResult.data.pool as Pool;
-
-    // Format pool data in a visually appealing way
     const message = formatPoolMessage(poolData);
-
-    // Send the formatted message
     return ctx.reply(message, { parse_mode: "HTML" });
   } catch (error) {
     console.error("Exception in pool command:", error);
@@ -84,9 +51,6 @@ export const poolCommand = async (ctx: CommandContext<Context>) => {
   }
 };
 
-/**
- * Format pool data into a beautiful HTML message
- */
 function formatPoolMessage(poolData: Pool): string {
   const {
     id,
@@ -105,63 +69,65 @@ function formatPoolMessage(poolData: Pool): string {
     isDraw,
   } = poolData;
 
-  // Format numbers with commas and limit decimal places
-  const formatUSD = (value: string) => {
-    // Convert from wei (assuming 6 decimals for USDC)
-    const dollars = parseInt(value) / 1_000_000;
-    return `$${dollars.toLocaleString("en-US", { maximumFractionDigits: 2 })}`;
-  };
+  const totalPoints = pointsBetTotals.reduce(
+    (sum, points) => sum + BigInt(points),
+    BigInt(0)
+  );
 
-  const formatPoints = (value: string) => {
-    // Convert from wei (assuming 18 decimals for points)
-    const points = parseInt(value) / 1_000_000_000_000_000_000;
-    return points.toLocaleString("en-US", { maximumFractionDigits: 2 });
-  };
+  const totalUsdc = usdcBetTotals.reduce(
+    (sum, usdc) => sum + BigInt(usdc),
+    BigInt(0)
+  );
 
-  // Format timestamp to readable date
-  const formatDate = (timestamp: string) => {
-    return new Date(parseInt(timestamp) * 1000).toLocaleString();
-  };
+  const pointsPercentages =
+    totalPoints > BigInt(0)
+      ? pointsBetTotals.map((points) =>
+          Number((BigInt(points) * BigInt(100)) / totalPoints)
+        )
+      : options.map(() => 0);
 
-  // Format status with emoji
-  const formatStatus = (status: PoolStatus) => {
-    switch (status) {
-      case PoolStatus.Pending:
-        return "🟢 Active";
-      case PoolStatus.Graded:
-        return "✅ Graded";
-      default:
-        return status;
+  const usdcPercentages =
+    totalUsdc > BigInt(0)
+      ? usdcBetTotals.map((usdc) =>
+          Number((BigInt(usdc) * BigInt(100)) / totalUsdc)
+        )
+      : options.map(() => 0);
+
+  const combinedPercentages = options.map((_, index) => {
+    if (totalPoints > BigInt(0) && totalUsdc > BigInt(0)) {
+      return Math.round(
+        ((pointsPercentages[index] || 0) + (usdcPercentages[index] || 0)) / 2
+      );
+    } else if (totalPoints > BigInt(0)) {
+      return pointsPercentages[index];
+    } else if (totalUsdc > BigInt(0)) {
+      return usdcPercentages[index];
+    } else {
+      return 0;
     }
-  };
+  });
 
-  // Calculate odds and create options display
   const optionsDisplay = options
     .map((option, index) => {
       const usdcAmount = usdcBetTotals[index] || "0";
       const pointsAmount = pointsBetTotals[index] || "0";
+      const percentage = combinedPercentages[index] || 0;
 
-      // Calculate percentage of total bets
-      const totalUsdcBets = usdcBetTotals.reduce(
-        (sum, bet) => sum + (parseInt(bet) || 0),
-        0
-      );
+      const isWinner =
+        winningOption !== null && index.toString() === winningOption;
+      const isDrewOption =
+        isDraw && winningOption !== null && index.toString() === winningOption;
 
-      const percentage =
-        totalUsdcBets > 0 ? (parseInt(usdcAmount) / totalUsdcBets) * 100 : 0;
-
-      // Determine if this is the winning option
-      const isWinner = winningOption && index.toString() === winningOption;
+      const progressBar = createProgressBar(percentage);
 
       return `• <b>${option}</b>: ${formatUSD(usdcAmount)} (${formatPoints(
         pointsAmount
-      )} points) - ${percentage.toFixed(1)}%${isWinner ? " ✅" : ""}${
-        isDraw ? " 🤝" : ""
-      }`;
+      )} points) - ${percentage.toFixed(1)}%\n  ${progressBar}${
+        isWinner ? " ✅" : ""
+      }${isDrewOption ? " 🤝" : ""}`;
     })
-    .join("\n");
+    .join("\n\n");
 
-  // Build a beautiful message with emoji and formatting
   return `
 <b>🔮 Prediction Pool #${poolId}</b>
 
@@ -181,4 +147,17 @@ ${optionsDisplay}
 
 <code>/pool ${id}</code>
 `.trim();
+}
+
+function createProgressBar(percentage: number): string {
+  const filledChar = "█";
+  const emptyChar = "░";
+  const barLength = 20;
+  const filledCount = Math.round((percentage / 100) * barLength);
+
+  return (
+    filledChar.repeat(filledCount) +
+    emptyChar.repeat(Math.max(0, barLength - filledCount)) +
+    ` ${percentage.toFixed(1)}%`
+  );
 }

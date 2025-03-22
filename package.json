@@ -24,6 +24,7 @@
     "@privy-io/server-auth": "^1.19.0",
     "@supabase/supabase-js": "^2.49.1",
     "dotenv": "^16.4.7",
+    "ethers": "^6.13.5",
     "grammy": "^1.35.0",
     "graphql": "^16.10.0",
     "react": "^18.2.0",

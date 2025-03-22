@@ -81,14 +81,12 @@ function formatPoolsList(pools: Pool[]): string {
   let message = "📊 *Available Pools:*\n\n";
 
   pools.forEach((pool, index) => {
-    const totalVolume =
-      pool.bets?.reduce((sum, bet) => sum + parseFloat(bet.amount), 0) || 0;
-    const formattedVolume = totalVolume.toLocaleString(undefined, {
-      maximumFractionDigits: 1,
-    });
+    const totalVolume = Number(pool.usdcVolume) + Number(pool.pointsVolume);
 
     message += `${index + 1}. *${pool.question}*\n`;
-    message += `   ID: \`${pool.poolId}\` | Vol: ${formattedVolume} | Options: ${pool.options.length}\n\n`;
+    message += `   ID: \`${pool.poolId}\` | Vol: ${Number(
+      Number(totalVolume) / 10 ** 6
+    )} | Options: ${pool.options.length}\n\n`;
   });
 
   message += "Use /pool [ID] to see details or select a pool below.";
@@ -258,20 +256,17 @@ export const handlePoolsNavigation = async (ctx: Context): Promise<void> => {
 
   try {
     const callbackData = ctx.callbackQuery.data.toString();
-    const userId = ctx.from?.id ?? "unknown";
-    const username = ctx.from?.username ?? "unknown";
 
     if (callbackData.startsWith("pool_view_")) {
       const poolId = callbackData.replace("pool_view_", "");
-      console.log(
-        `[User Interaction] User ${username} (${userId}) clicked to view pool: ${poolId}`
-      );
 
       const { data, error } = await apolloClient.query({
         query: GET_POOLS,
         variables: {
           filter: { poolId },
           first: 1,
+          orderBy: "createdAt",
+          orderDirection: "desc",
         },
       });
 
@@ -298,10 +293,6 @@ export const handlePoolsNavigation = async (ctx: Context): Promise<void> => {
         ""
       ) as PoolFilterType;
 
-      console.log(
-        `[User Interaction] User ${username} (${userId}) selected filter: ${filterType}`
-      );
-
       const pagination: PaginationState = {
         offset: 0,
         limit: 10,
@@ -327,10 +318,6 @@ export const handlePoolsNavigation = async (ctx: Context): Promise<void> => {
       const offset = parseInt(parts[0] || "0");
       const filterType = (parts[1] || "active") as PoolFilterType;
 
-      console.log(
-        `[User Interaction] User ${username} (${userId}) navigated to page with offset ${offset} using filter: ${filterType}`
-      );
-
       const pagination: PaginationState = {
         offset,
         limit: 10,
@@ -352,10 +339,6 @@ export const handlePoolsNavigation = async (ctx: Context): Promise<void> => {
     }
 
     if (callbackData === "pools_back_to_list") {
-      console.log(
-        `[User Interaction] User ${username} (${userId}) clicked back to pools list`
-      );
-
       const pagination: PaginationState = {
         offset: 0,
         limit: 10,

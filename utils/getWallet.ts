@@ -18,7 +18,7 @@ export const getWallet = async (tg_id: number, ctx?: any) => {
   let chainType: string;
   let isNewWallet = false;
 
-  if (wallet?.wallet_id) {
+  if (wallet && wallet?.wallet_id) {
     const walletP = await privy.walletApi.getWallet({
       id: wallet.wallet_id,
     });
@@ -29,7 +29,7 @@ export const getWallet = async (tg_id: number, ctx?: any) => {
     }
 
     address = walletP.address;
-    chainType = "base-sepolia";
+    chainType = "ethereum";
 
     return { address, chainType, isNewWallet, wallet: walletP };
   } else {

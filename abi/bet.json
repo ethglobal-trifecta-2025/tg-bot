@@ -1,0 +1,468 @@
+[
+  {
+    "type": "constructor",
+    "inputs": [
+      { "name": "_usdc", "type": "address", "internalType": "address" },
+      { "name": "_pointsToken", "type": "address", "internalType": "address" }
+    ],
+    "stateMutability": "nonpayable"
+  },
+  { "name": "BetAlreadyExists", "type": "error", "inputs": [] },
+  { "name": "BetAlreadyPaidOut", "type": "error", "inputs": [] },
+  { "name": "BetAlreadyWithdrawn", "type": "error", "inputs": [] },
+  { "name": "BetNotPaidOut", "type": "error", "inputs": [] },
+  { "name": "BetsCloseTimeInPast", "type": "error", "inputs": [] },
+  { "name": "BettingPeriodClosed", "type": "error", "inputs": [] },
+  { "name": "BettingPeriodNotClosed", "type": "error", "inputs": [] },
+  { "name": "GradingError", "type": "error", "inputs": [] },
+  { "name": "InsufficientBalance", "type": "error", "inputs": [] },
+  { "name": "InsufficientWithdrawBalance", "type": "error", "inputs": [] },
+  { "name": "InvalidOptionIndex", "type": "error", "inputs": [] },
+  { "name": "NoBetToCancel", "type": "error", "inputs": [] },
+  { "name": "NotBetOwner", "type": "error", "inputs": [] },
+  {
+    "name": "OwnableInvalidOwner",
+    "type": "error",
+    "inputs": [{ "name": "owner", "type": "address", "internalType": "address" }]
+  },
+  {
+    "name": "OwnableUnauthorizedAccount",
+    "type": "error",
+    "inputs": [{ "name": "account", "type": "address", "internalType": "address" }]
+  },
+  { "name": "PoolAlreadyClosed", "type": "error", "inputs": [] },
+  { "name": "PoolDoesntExist", "type": "error", "inputs": [] },
+  { "name": "PoolNotGraded", "type": "error", "inputs": [] },
+  { "name": "PoolNotOpen", "type": "error", "inputs": [] },
+  { "name": "TokenRefundFailed", "type": "error", "inputs": [] },
+  { "name": "TokenTransferFailed", "type": "error", "inputs": [] },
+  { "name": "TokenTypeMismatch", "type": "error", "inputs": [] },
+  { "name": "ZeroAmount", "type": "error", "inputs": [] },
+  {
+    "name": "BetPlaced",
+    "type": "event",
+    "inputs": [
+      {
+        "name": "betId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "poolId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "user",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "optionIndex",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "tokenType",
+        "type": "uint8",
+        "indexed": false,
+        "internalType": "enum BettingContract.TokenType"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "name": "BetWithdrawal",
+    "type": "event",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "betId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "tokenType",
+        "type": "uint8",
+        "indexed": false,
+        "internalType": "enum BettingContract.TokenType"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "name": "OwnershipTransferred",
+    "type": "event",
+    "inputs": [
+      {
+        "name": "previousOwner",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "newOwner",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "name": "PayoutClaimed",
+    "type": "event",
+    "inputs": [
+      {
+        "name": "betId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "poolId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "user",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "tokenType",
+        "type": "uint8",
+        "indexed": false,
+        "internalType": "enum BettingContract.TokenType"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "name": "PoolClosed",
+    "type": "event",
+    "inputs": [
+      {
+        "name": "poolId",
+        "type": "uint256",
+        "indexed": true,
+        "internalType": "uint256"
+      },
+      {
+        "name": "selectedOption",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "name": "PoolCreated",
+    "type": "event",
+    "inputs": [
+      {
+        "name": "poolId",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "params",
+        "type": "tuple",
+        "indexed": false,
+        "components": [
+          { "name": "question", "type": "string", "internalType": "string" },
+          {
+            "name": "options",
+            "type": "string[2]",
+            "internalType": "string[2]"
+          },
+          { "name": "betsCloseAt", "type": "uint40", "internalType": "uint40" },
+          {
+            "name": "closureCriteria",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "closureInstructions",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "originalTruthSocialPostId",
+            "type": "string",
+            "internalType": "string"
+          }
+        ],
+        "internalType": "struct BettingContract.CreatePoolParams"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "name": "Withdrawal",
+    "type": "event",
+    "inputs": [
+      {
+        "name": "user",
+        "type": "address",
+        "indexed": true,
+        "internalType": "address"
+      },
+      {
+        "name": "amount",
+        "type": "uint256",
+        "indexed": false,
+        "internalType": "uint256"
+      },
+      {
+        "name": "tokenType",
+        "type": "uint8",
+        "indexed": false,
+        "internalType": "enum BettingContract.TokenType"
+      }
+    ],
+    "anonymous": false
+  },
+  {
+    "name": "PAYOUT_FEE_BP",
+    "type": "function",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "name": "bets",
+    "type": "function",
+    "inputs": [{ "name": "betId", "type": "uint256", "internalType": "uint256" }],
+    "outputs": [
+      { "name": "id", "type": "uint256", "internalType": "uint256" },
+      { "name": "owner", "type": "address", "internalType": "address" },
+      { "name": "option", "type": "uint256", "internalType": "uint256" },
+      { "name": "amount", "type": "uint256", "internalType": "uint256" },
+      { "name": "poolId", "type": "uint256", "internalType": "uint256" },
+      { "name": "createdAt", "type": "uint256", "internalType": "uint256" },
+      { "name": "updatedAt", "type": "uint256", "internalType": "uint256" },
+      { "name": "isPayedOut", "type": "bool", "internalType": "bool" },
+      { "name": "isWithdrawn", "type": "bool", "internalType": "bool" },
+      {
+        "name": "tokenType",
+        "type": "uint8",
+        "internalType": "enum BettingContract.TokenType"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "name": "claimPayouts",
+    "type": "function",
+    "inputs": [{ "name": "betIds", "type": "uint256[]", "internalType": "uint256[]" }],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "name": "createPool",
+    "type": "function",
+    "inputs": [
+      {
+        "name": "params",
+        "type": "tuple",
+        "components": [
+          { "name": "question", "type": "string", "internalType": "string" },
+          {
+            "name": "options",
+            "type": "string[2]",
+            "internalType": "string[2]"
+          },
+          { "name": "betsCloseAt", "type": "uint40", "internalType": "uint40" },
+          {
+            "name": "closureCriteria",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "closureInstructions",
+            "type": "string",
+            "internalType": "string"
+          },
+          {
+            "name": "originalTruthSocialPostId",
+            "type": "string",
+            "internalType": "string"
+          }
+        ],
+        "internalType": "struct BettingContract.CreatePoolParams"
+      }
+    ],
+    "outputs": [{ "name": "poolId", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "name": "gradeBet",
+    "type": "function",
+    "inputs": [
+      { "name": "poolId", "type": "uint256", "internalType": "uint256" },
+      { "name": "responseOption", "type": "uint256", "internalType": "uint256" }
+    ],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "name": "nextBetId",
+    "type": "function",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "name": "nextPoolId",
+    "type": "function",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "name": "owner",
+    "type": "function",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "address", "internalType": "address" }],
+    "stateMutability": "view"
+  },
+  {
+    "name": "placeBet",
+    "type": "function",
+    "inputs": [
+      { "name": "poolId", "type": "uint256", "internalType": "uint256" },
+      { "name": "optionIndex", "type": "uint256", "internalType": "uint256" },
+      { "name": "amount", "type": "uint256", "internalType": "uint256" },
+      { "name": "bettor", "type": "address", "internalType": "address" },
+      {
+        "name": "tokenType",
+        "type": "uint8",
+        "internalType": "enum BettingContract.TokenType"
+      }
+    ],
+    "outputs": [{ "name": "betId", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "name": "pointsToken",
+    "type": "function",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "address", "internalType": "contract ERC20" }],
+    "stateMutability": "view"
+  },
+  {
+    "name": "pools",
+    "type": "function",
+    "inputs": [{ "name": "poolId", "type": "uint256", "internalType": "uint256" }],
+    "outputs": [
+      { "name": "id", "type": "uint256", "internalType": "uint256" },
+      { "name": "question", "type": "string", "internalType": "string" },
+      { "name": "betsCloseAt", "type": "uint40", "internalType": "uint40" },
+      { "name": "winningOption", "type": "uint256", "internalType": "uint256" },
+      {
+        "name": "status",
+        "type": "uint8",
+        "internalType": "enum BettingContract.PoolStatus"
+      },
+      { "name": "isDraw", "type": "bool", "internalType": "bool" },
+      { "name": "createdAt", "type": "uint256", "internalType": "uint256" },
+      { "name": "closureCriteria", "type": "string", "internalType": "string" },
+      {
+        "name": "closureInstructions",
+        "type": "string",
+        "internalType": "string"
+      },
+      {
+        "name": "originalTruthSocialPostId",
+        "type": "string",
+        "internalType": "string"
+      }
+    ],
+    "stateMutability": "view"
+  },
+  {
+    "name": "renounceOwnership",
+    "type": "function",
+    "inputs": [],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "name": "transferOwnership",
+    "type": "function",
+    "inputs": [{ "name": "newOwner", "type": "address", "internalType": "address" }],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  },
+  {
+    "name": "usdc",
+    "type": "function",
+    "inputs": [],
+    "outputs": [{ "name": "", "type": "address", "internalType": "contract ERC20" }],
+    "stateMutability": "view"
+  },
+  {
+    "name": "userBalances",
+    "type": "function",
+    "inputs": [
+      { "name": "user", "type": "address", "internalType": "address" },
+      {
+        "name": "",
+        "type": "uint8",
+        "internalType": "enum BettingContract.TokenType"
+      }
+    ],
+    "outputs": [{ "name": "", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "name": "userBets",
+    "type": "function",
+    "inputs": [
+      { "name": "bettor", "type": "address", "internalType": "address" },
+      { "name": "", "type": "uint256", "internalType": "uint256" }
+    ],
+    "outputs": [{ "name": "betIds", "type": "uint256", "internalType": "uint256" }],
+    "stateMutability": "view"
+  },
+  {
+    "name": "withdraw",
+    "type": "function",
+    "inputs": [{ "name": "betId", "type": "uint256", "internalType": "uint256" }],
+    "outputs": [],
+    "stateMutability": "nonpayable"
+  }
+]
