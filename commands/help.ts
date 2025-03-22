@@ -1,4 +1,5 @@
 import type { CommandContext, Context } from "grammy";
+import { InlineKeyboard } from "grammy";
 
 export const help = async (ctx: CommandContext<Context>) => {
   if (!ctx.from) {
@@ -7,8 +8,35 @@ export const help = async (ctx: CommandContext<Context>) => {
   }
 
   try {
-    const message = `Hello, ${ctx.from.first_name}!\n\nI am your friendly bot. Here are some commands you can use:\n\n/start - Start the bot\n/help - Show this help message\n/wallet - Create or view your wallet\n\nFeel free to ask me anything!`;
-    ctx.reply(message);
+    // Create inline keyboard for quick command access
+    const keyboard = new InlineKeyboard()
+      .text("💰 Wallet", "/wallet")
+      .text("🏊 Pools", "/pools")
+      .row()
+      .text("🎲 Bets", "/bets")
+      .text("💸 Withdraw", "/withdraw");
+
+    const message = `🌟 *Welcome, ${ctx.from.first_name}!* 🌟
+
+I'm your prediction market bot. Here's what I can do for you:
+
+📋 *Available Commands:*
+• /start - Begin your journey with me
+• /help - Display this helpful guide
+• /wallet - View or create your crypto wallet
+• /pools - View available prediction pools
+• /pool - View details of a specific pool
+• /bets - View your active bets
+• /bet - Place a new bet (coming soon)
+• /withdraw - Withdraw your funds (coming soon)
+
+💡 *Need assistance?*
+Just send me a message with your question!`;
+
+    await ctx.reply(message, {
+      parse_mode: "Markdown",
+      reply_markup: keyboard,
+    });
   } catch (error) {
     console.error("Help command error:", error);
     ctx.reply(
