@@ -5,8 +5,9 @@ import { wallet } from "./commands/wallet";
 import { help } from "./commands/help";
 import { handlePoolsNavigation, poolsCommand } from "./commands/pools";
 import { poolCommand } from "./commands/pool";
-import { betsCommand } from "./commands/bets";
+import { betsCommand, handleBetsFilter } from "./commands/bets";
 import { placeBetCommand } from "./commands/bet";
+import { withdrawCommand } from "./commands/withdraw";
 
 config();
 
@@ -43,7 +44,7 @@ bot.command("bet", (ctx) => {
 });
 
 bot.command("withdraw", (ctx) => {
-  ctx.reply("Withdraw command is not implemented yet.");
+  withdrawCommand(ctx);
 });
 
 bot.callbackQuery("wallet_cmd", async (ctx) => {
@@ -68,6 +69,10 @@ bot.callbackQuery("withdraw_cmd", async (ctx) => {
 
 bot.callbackQuery(/^pools?_/, async (ctx) => {
   await handlePoolsNavigation(ctx);
+});
+
+bot.callbackQuery(/^bets_filter_/, async (ctx) => {
+  await handleBetsFilter(ctx);
 });
 
 bot.on("message", (ctx) => ctx.reply("Got another message!"));

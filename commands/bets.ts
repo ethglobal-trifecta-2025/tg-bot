@@ -39,19 +39,18 @@ function formatBetsMessage(bets: Bet[], filterType: string): string {
   return message;
 }
 
-// Get the appropriate filter based on filter type and wallet address
 function getFilter(filterType: FilterType, walletAddress: string): any {
   const filters: BetFilters = {
     [FilterType.ACTIVE]: {
       user: walletAddress,
       pool_: {
-        status_eq: PoolStatus.Pending,
+        status: PoolStatus.Pending,
       },
     },
     [FilterType.WON]: {
       user: walletAddress,
       pool_: {
-        status_eq: PoolStatus.Graded,
+        status: PoolStatus.Graded,
       },
       winner_: {
         id_eq: walletAddress,
@@ -60,7 +59,7 @@ function getFilter(filterType: FilterType, walletAddress: string): any {
     [FilterType.LOST]: {
       user: walletAddress,
       pool_: {
-        status_eq: PoolStatus.Graded,
+        status: PoolStatus.Graded,
       },
       loser_: {
         id_eq: walletAddress,
@@ -74,7 +73,6 @@ function getFilter(filterType: FilterType, walletAddress: string): any {
   return filters[filterType] || filters[FilterType.ALL];
 }
 
-// Create the filter keyboard
 function createFilterKeyboard(): InlineKeyboard {
   return new InlineKeyboard()
     .text("Active", `bets_filter_${FilterType.ACTIVE}`)
@@ -83,7 +81,6 @@ function createFilterKeyboard(): InlineKeyboard {
     .text("All", `bets_filter_${FilterType.ALL}`);
 }
 
-// Fetch bets with the given filter
 async function fetchBets(
   filter: any
 ): Promise<{ bets: Bet[] | null; error: Error | null }> {
@@ -96,7 +93,7 @@ async function fetchBets(
         orderDirection: "desc",
         first: 10,
       },
-      fetchPolicy: "network-only", // Don't use cache for fresh data
+      fetchPolicy: "network-only",
     });
 
     if (error) {
