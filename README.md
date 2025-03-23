@@ -1,15 +1,108 @@
-# trump-tg-bot
+# Trump.fun Telegram Bot
 
-To install dependencies:
+![Trump.fun Logo](https://fxewzungnacaxpsnowcu.supabase.co/storage/v1/object/public/trump-fun/logo/trump.fun.logo.jpg)
+
+Telegram bot interface for the Trump.fun prediction market platform.
+
+## Overview
+
+This Telegram bot serves as an additional interface for the Trump.fun prediction market platform, allowing users to interact with the platform directly from Telegram. It provides notifications about new betting pools, market resolutions, and allows users to place bets without visiting the web interface.
+
+Trump.fun is an AI-powered prediction market platform centered around President Trump's actions and statements. Our system automatically creates betting pools based on Trump's Truth Social posts, allowing users to place bets using either cryptocurrency (USDC) or our platform's native FREEDOM tokens.
+
+## Features
+
+- Receive notifications about new betting pools
+- Get alerts when markets are resolved
+- Place bets directly through Telegram
+- Check your betting history and current positions
+- Receive Trump-style responses using our AI agent
+- Get real-time updates about Trump's Truth Social posts
+
+## Tech Stack
+
+- Bun runtime for JavaScript/TypeScript
+- Node.js Telegram Bot API
+- Integration with Trump.fun backend services
+- Connection to blockchain for transaction processing
+
+## Getting Started
+
+### Prerequisites
+
+- [Bun](https://bun.sh) v1.2.6 or higher
+- Telegram Bot API token
+
+### Installation
+
+1. Clone the repository:
+
+```bash
+git clone https://github.com/yourusername/trump-tg-bot.git
+cd trump-tg-bot
+```
+
+2. Install dependencies:
 
 ```bash
 bun install
 ```
 
-To run:
+3. Create a `.env` file with the following variables:
+
+```
+TELEGRAM_BOT_TOKEN=your_telegram_bot_token
+API_BASE_URL=your_api_base_url
+```
+
+4. Run the bot:
 
 ```bash
 bun run index.ts
 ```
 
-This project was created using `bun init` in bun v1.2.6. [Bun](https://bun.sh) is a fast all-in-one JavaScript runtime.
+## Bot Commands
+
+- `/start` - Initialize the bot and get welcome message
+- `/help` - Display available commands
+- `/markets` - List current open betting markets
+- `/bet [market_id] [option] [amount]` - Place a bet
+- `/balance` - Check your current balance
+- `/history` - View your betting history
+
+## Deployment
+
+The bot can be deployed to any server running Bun:
+
+```bash
+# On your server
+git clone https://github.com/yourusername/trump-tg-bot.git
+cd trump-tg-bot
+bun install
+# Use PM2 or similar to keep the bot running
+pm2 start --interpreter ~/.bun/bin/bun index.ts
+```
+
+## Integration with Trump.fun Platform
+
+The Telegram bot integrates with other Trump.fun components:
+- Connects to the same blockchain contracts as the frontend
+- Uses the AI agent for generating Trump-style responses
+- Synchronizes user accounts across platforms
+
+## Try the Bot
+
+You can try our bot at: [https://t.me/trump_fun_bot](https://t.me/trump_fun_bot)
+
+## Social Media
+
+- Twitter: [@realTrumpFun](https://x.com/realTrumpFun)
+- Truth Social: [@realDonaldTrump](https://truthsocial.com/@realDonaldTrump)
+
+## Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## License
+
+This project is licensed under the MIT License.
