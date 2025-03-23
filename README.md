@@ -51,8 +51,20 @@ bun install
 3. Create a `.env` file with the following variables:
 
 ```
-TELEGRAM_BOT_TOKEN=your_telegram_bot_token
-API_BASE_URL=your_api_base_url
+# Authentication & Wallet Integration
+PRIVY_APP_ID=             # Your Privy App ID for wallet integration
+PRIVY_APP_SECRET=         # Your Privy App Secret (keep this secure)
+
+# Database
+SUPABASE_URL=             # URL for your Supabase instance
+SUPABASE_ANON_KEY=        # Anon/Public key for Supabase access
+
+# Telegram Bot Integration
+BOT_ID=                   # Your Telegram bot ID for notifications
+
+# Blockchain Indexer
+INDEXER_URL=              # URL for the blockchain indexer service
+INDEXER_API_KEY=          # API key for accessing the indexer
 ```
 
 4. Run the bot:
