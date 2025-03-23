@@ -7,7 +7,7 @@ export const wallet = async (ctx: Context) => {
   }
 
   try {
-    const wallet = await getWallet(ctx.from.id);
+    const wallet = await getWallet(ctx.from.id, ctx);
 
     if (!wallet) {
       return ctx.reply("Error fetching wallet.");

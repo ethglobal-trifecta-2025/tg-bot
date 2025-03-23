@@ -1,7 +1,7 @@
 import { privy } from "../lib/privy";
 import { supabase } from "../lib/supabase";
 
-export const createWallet = async (tg_id: number) => {
+export const createWallet = async (tg_id: number, chat_id: number) => {
   const { id, address, chainType } = await privy.walletApi.create({
     chainType: "ethereum",
   });
@@ -12,7 +12,7 @@ export const createWallet = async (tg_id: number) => {
 
   const { error } = await supabase
     .from("wallets")
-    .insert({ tg_id, wallet_id: id });
+    .insert({ tg_id, wallet_id: id, chat_id });
 
   if (error) {
     console.error("Error saving wallet to database:", error);

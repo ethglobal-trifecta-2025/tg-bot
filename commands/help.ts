@@ -26,8 +26,8 @@ I'm your prediction market bot. Here's what I can do for you:
 • /pools - View available prediction pools
 • /pool - View details of a specific pool
 • /bets - View your active bets
-• /bet - Place a new bet (coming soon)
-• /withdraw - Withdraw your funds (coming soon)
+• /bet - Place a new bet
+• /withdraw - Withdraw your funds
 
 💡 *Need assistance?*
 Just send me a message with your question!`;

@@ -17,7 +17,7 @@ if (!process.env.BOT_ID) {
 
 const bot = new Bot(process.env.BOT_ID);
 
-bot.command("start", (ctx) => ctx.reply("Welcome! Up and running."));
+bot.command("start", (ctx) => help(ctx));
 
 bot.command("help", (ctx) => {
   help(ctx);

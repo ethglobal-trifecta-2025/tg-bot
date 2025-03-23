@@ -1,8 +1,9 @@
 import { supabase } from "../lib/supabase";
 import { privy } from "../lib/privy"; // Import privy
 import { createWallet } from "./createWallet";
+import type { Context } from "grammy";
 
-export const getWallet = async (tg_id: number, ctx?: any) => {
+export const getWallet = async (tg_id: number, ctx: Context) => {
   const { data: wallet, error } = await supabase
     .from("wallets")
     .select("*")
@@ -10,8 +11,10 @@ export const getWallet = async (tg_id: number, ctx?: any) => {
     .single();
 
   if (error) {
-    console.error("Error fetching wallet:", error);
-    return null;
+    if (error.code !== "PGRST116") {
+      console.error("Error fetching wallet:", error);
+      return null;
+    }
   }
 
   let address: string;
@@ -33,7 +36,12 @@ export const getWallet = async (tg_id: number, ctx?: any) => {
 
     return { address, chainType, isNewWallet, wallet: walletP };
   } else {
-    const result = await createWallet(tg_id);
+    if (!ctx.chat) {
+      if (ctx) ctx.reply("Chat information not available.");
+      return null;
+    }
+
+    const result = await createWallet(tg_id, ctx.chat.id);
     address = result.address;
     chainType = result.chainType;
     isNewWallet = true;
