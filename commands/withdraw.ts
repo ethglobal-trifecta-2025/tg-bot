@@ -16,7 +16,7 @@ export const withdrawCommand = async (ctx: Context) => {
     return ctx.reply("User not found.");
   }
 
-  const wallet = await getWallet(ctx.from.id);
+  const wallet = await getWallet(ctx.from.id, ctx);
   if (!wallet) {
     return ctx.reply(
       "No wallet found. Please set up your wallet first with /setup."

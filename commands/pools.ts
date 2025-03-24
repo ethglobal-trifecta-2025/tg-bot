@@ -1,6 +1,13 @@
 import type { Context } from "grammy";
 import { InlineKeyboard } from "grammy";
-import { PoolStatus, type Pool } from "../lib/__generated__/graphql";
+import {
+  OrderDirection,
+  Pool_OrderBy,
+  PoolStatus,
+  type GetPoolsQuery,
+  type GetPoolsQueryVariables,
+  type Pool,
+} from "../lib/__generated__/graphql";
 import { apolloClient } from "../lib/apolloClient";
 import { GET_POOLS } from "../queries";
 
@@ -73,7 +80,7 @@ function formatPoolMessage(pool: Pool): string {
   );
 }
 
-function formatPoolsList(pools: Pool[]): string {
+function formatPoolsList(pools: GetPoolsQuery["pools"]): string {
   if (pools.length === 0) {
     return "No pools found matching your criteria.";
   }
@@ -94,60 +101,62 @@ function formatPoolsList(pools: Pool[]): string {
   return message;
 }
 
-function getPoolQueryParams(filterType: PoolFilterType): any {
+function getPoolQueryParams(
+  filterType: PoolFilterType
+): GetPoolsQueryVariables {
   const now = Math.floor(Date.now() / 1000);
 
   switch (filterType) {
     case PoolFilterType.ACTIVE:
       return {
         filter: { status: PoolStatus.Pending },
-        orderBy: "createdAt",
-        orderDirection: "desc",
+        orderBy: Pool_OrderBy.CreatedAt,
+        orderDirection: OrderDirection.Desc,
       };
 
     case PoolFilterType.TRENDING:
       return {
         filter: { status: PoolStatus.Pending },
-        orderBy: "volume",
-        orderDirection: "desc",
+        orderBy: Pool_OrderBy.PointsVolume,
+        orderDirection: OrderDirection.Desc,
       };
 
     case PoolFilterType.NEWEST:
       return {
         filter: {},
-        orderBy: "createdAt",
-        orderDirection: "desc",
+        orderBy: Pool_OrderBy.CreatedAt,
+        orderDirection: OrderDirection.Desc,
       };
 
     case PoolFilterType.HIGHEST_VOLUME:
       return {
         filter: {},
-        orderBy: "volume",
-        orderDirection: "desc",
+        orderBy: Pool_OrderBy.PointsVolume,
+        orderDirection: OrderDirection.Desc,
       };
 
     case PoolFilterType.ENDING_SOON:
       return {
         filter: {
           status: PoolStatus.Pending,
-          endDate_gt: now,
-          endDate_lt: now + 86400 * 3,
+          betsCloseAt_gt: now,
+          betsCloseAt_lt: now + 86400 * 3,
         },
-        orderBy: "endDate",
-        orderDirection: "asc",
+        orderBy: Pool_OrderBy.BetsCloseAt,
+        orderDirection: OrderDirection.Asc,
       };
 
     default:
       return {
         filter: { status: PoolStatus.Pending },
-        orderBy: "createdAt",
-        orderDirection: "desc",
+        orderBy: Pool_OrderBy.CreatedAt,
+        orderDirection: OrderDirection.Desc,
       };
   }
 }
 
 function createPoolsKeyboard(
-  pools: Pool[],
+  pools: GetPoolsQuery["pools"],
   currentFilter: PoolFilterType,
   pagination: PaginationState
 ): InlineKeyboard {
@@ -180,7 +189,7 @@ function createPoolsKeyboard(
 async function fetchPools(
   queryParams: any,
   pagination: PaginationState
-): Promise<{ pools: Pool[] | null; error: Error | null }> {
+): Promise<{ pools: GetPoolsQuery["pools"] | null; error: Error | null }> {
   if (!queryParams) {
     return { pools: null, error: new Error("Invalid query parameters") };
   }
