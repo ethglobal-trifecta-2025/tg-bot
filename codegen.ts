@@ -4,7 +4,12 @@ const config: CodegenConfig = {
   overwrite: true,
   schema:
     "https://api.studio.thegraph.com/query/105510/trump-fun/version/latest",
-  documents: ["src/**/*.ts(x)"],
+  documents: [
+    "./src/**/*.ts",
+    "/commands/**/*.ts",
+    "./queries.ts",
+    "./lib/**/*.ts",
+  ],
   generates: {
     "lib/__generated__/": {
       preset: "client",

@@ -1,6 +1,5 @@
 import { ethers } from "ethers";
 import type { Context } from "grammy";
-import { Keyboard } from "grammy";
 import betAbi from "../abi/bet.json";
 import { APP_ADDRESS, POINTS_ADDRESS } from "../consts/addresses";
 import { privy } from "../lib/privy";
@@ -11,7 +10,7 @@ export const placeBetCommand = async (ctx: Context) => {
     return ctx.reply("User not found.");
   }
 
-  const wallet = await getWallet(ctx.from.id);
+  const wallet = await getWallet(ctx.from.id, ctx);
   if (!wallet) {
     return ctx.reply(
       "No wallet found. Please set up your wallet first with /setup."
@@ -169,7 +168,7 @@ export const placeBetCommand = async (ctx: Context) => {
 };
 
 async function startBettingProcess(ctx: Context) {
-  const wallet = await getWallet(ctx.from!.id);
+  const wallet = await getWallet(ctx.from!.id, ctx);
   const provider = new ethers.JsonRpcProvider("https://sepolia.base.org");
   const balance = await checkBalance(provider, wallet!.address);
 

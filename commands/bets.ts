@@ -119,7 +119,7 @@ export const betsCommand = async (ctx: Context): Promise<void> => {
   }
 
   try {
-    const wallet = await getWallet(ctx.from.id);
+    const wallet = await getWallet(ctx.from.id, ctx);
 
     if (!wallet) {
       await ctx.reply("No wallet found. Please set up your wallet first.");
@@ -169,7 +169,7 @@ export const handleBetsFilter = async (ctx: Context): Promise<void> => {
       return;
     }
 
-    const wallet = await getWallet(ctx.from.id);
+    const wallet = await getWallet(ctx.from.id, ctx);
     if (!wallet) {
       await ctx.answerCallbackQuery(
         "No wallet found. Please set up your wallet first."
